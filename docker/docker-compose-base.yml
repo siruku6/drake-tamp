@@ -1,0 +1,16 @@
+services:
+  py_base:
+    image: python-ompl-base:ubuntu24.04
+    # Drake を使うために architecture を linux/amd64 に指定
+    # https://drake.mit.edu/installation.html#supported-configurations
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    shm_size: '20gb'
+    init: true
+    tty: true
+    stdin_open: true
+    volumes:
+      # bind mount
+      - ../:/home/${USER}/

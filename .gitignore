@@ -11,7 +11,6 @@
 *.mp4
 *.pt
 *.swp
-mjkey.txt
 notebooks/
 model_files/
 **/*.log
@@ -22,3 +21,6 @@ learning/data/labeled/**
 stats.json
 run-params.txt
 collect-label-params.txt
+
+# Additional ignores
+.env
