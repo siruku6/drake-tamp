@@ -1,0 +1,33 @@
+x-common: &common
+
+services:
+  dtamp:
+    image: drake-tamp-${USER}
+    # Drake を使うために architecture を linux/amd64 に指定
+    # https://drake.mit.edu/installation.html#supported-configurations
+    platform: linux/amd64
+    container_name: drake-tamp
+    environment:
+      - UV_PROJECT_ENVIRONMENT=${UV_PROJECT_DIR}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        password: ${DOCKER_PASSWORD}
+        user: ${USER}
+        id: ${UID}
+        gitemail: ${GIT_EMAIL}
+        gitname: ${GIT_NAME}
+        WORKING_DIRECTORY: /home/${USER}/drake-tamp
+        UV_PROJECT_ENVIRONMENT: ${UV_PROJECT_DIR}
+    ports:
+      - "${port:-2300}:22"
+      - "${vnc_port:-5901}:5901"
+    volumes:
+      # bind mount
+      - ../:/home/${USER}/drake-tamp
+    shm_size: '20gb'
+    init: true
+    tty: true
+    stdin_open: true
+    command: /bin/bash

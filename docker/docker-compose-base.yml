@@ -7,6 +7,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.base
+    environment:
+      - UV_PROJECT_ENVIRONMENT=${UV_PROJECT_DIR}
     shm_size: '20gb'
     init: true
     tty: true
