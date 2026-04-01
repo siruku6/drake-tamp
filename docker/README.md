@@ -63,3 +63,81 @@ This document provides instructions for setting up the Docker environment for th
     ```
 
 - The main depends on the base image `python-ompl-base:ubuntu24.04`.
+
+
+#### To compile FastDownward run:
+
+```bash
+git submodule update --init --recursive
+
+cd docker
+docker compose up -d
+docker compose exec dtamp bash
+cd pddlstream && ./FastDownward/build.py release64
+cd pddlstream/FastDownward/builds && ln -s release64 release32
+```
+
+
+## 3. Remote Access via TigerVNC 🖥️
+
+This section explains how to access the container's desktop environment from a remote machine via TigerVNC.
+
+### 3-1. Port Mapping
+
+The container exposes the following ports (configurable via `.env`):
+
+| Port (Host) | Port (Container) | Protocol |
+|-------------|-----------------|----------|
+| `2300` (default) | `22` | SSH |
+| `5901` (default) | `5901` | TigerVNC |
+
+### 3-2. SSH Config (Local Machine)
+
+Add the following entries to your local `~/.ssh/config`.  
+Replace `<remote-server>` with the hostname or IP of the remote server where the container is running.
+
+```ssh_config
+Host <remote-server>
+    Hostname <remote-server-ip>
+    User ubuntu
+
+Host tamp_workspace
+    ProxyCommand ssh -q <remote-server> -W localhost:2300
+    LocalForward 5901 localhost:5901
+    User ubuntu
+```
+
+> ⚠️ **Common mistakes to avoid**
+> - Do **not** use `-q0 localhost 5901` in `ProxyCommand` — `-q0` is not a valid SSH flag.
+> - The `ProxyCommand` must forward to the **SSH port (2300)**, not the VNC port (5901).
+
+### 3-3. Connecting
+
+1. Open an SSH tunnel to the container:
+
+    ```bash
+    ssh tamp_workspace
+    ```
+
+2. Open your VNC client and connect to:
+
+    ```
+    localhost:5901
+    ```
+
+3. Enter the password set via `DOCKER_PASSWORD` in your `.env` file when prompted.
+
+### 3-4. Connection Flow
+
+```
+Local PC
+  │  ssh tamp_workspace
+  ↓
+Remote Server (ProxyCommand jump)
+  │  -W localhost:2300  →  Docker container SSH (:22)
+  ↓
+Docker Container
+  │  LocalForward 5901  →  TigerVNC server (:5901)
+  ↓
+XFCE Desktop
+```
