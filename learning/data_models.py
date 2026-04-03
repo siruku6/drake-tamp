@@ -1,10 +1,10 @@
 from collections import namedtuple
 
-from numpy.lib.arraysetops import isin
+# from numpy.lib.arraysetops import isin
 from learning.pddlstream_utils import make_atom_map, make_stream_map, fact_to_pddl, obj_to_pddl
 from dataclasses import dataclass
-# from torch_geometric.data import Data
-from torch_geometric.loader import Data
+from torch_geometric.data import Data
+# from torch_geometric.loader import Data
 from pddlstream.algorithms.downward import Domain
 import numpy as np
 

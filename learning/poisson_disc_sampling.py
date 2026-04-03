@@ -106,16 +106,16 @@ class PoissonSampler:
         # extent[i]/(r/sqrt(n)) slots
         self.centered = centered
         bin_width = r/np.sqrt(self.n)
-        shape = np.ceil(extent/bin_width).astype(np.int)
+        shape = np.ceil(extent/bin_width).astype(np.int64)
         self.bin_width = extent/shape
-        self.grid = (-1*np.ones(shape)).astype(np.int)
+        self.grid = (-1*np.ones(shape)).astype(np.int64)
         self.first_sample = False
         self.active_list = []
         self.points = []
         self.clump = clump
 
     def reset(self):
-        self.grid = (-1*np.ones(self.grid.shape)).astype(np.int)
+        self.grid = (-1*np.ones(self.grid.shape)).astype(np.int64)
         self.first_sample = False
         self.active_list = []
         self.points = []
@@ -128,7 +128,7 @@ class PoissonSampler:
         """
         if np.any(point > self.extent) or np.any(point < 0):
             return None
-        return tuple(np.clip(np.floor(point/self.bin_width).astype(np.int), 0, self.grid.shape))
+        return tuple(np.clip(np.floor(point/self.bin_width).astype(np.int64), 0, self.grid.shape))
 
     def generate_annulus_point(self, center_point):
         """
