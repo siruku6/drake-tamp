@@ -2,12 +2,15 @@
 # https://github.com/rvl-lab-utoronto/drake-tamp/compare/main...allenapplehead:drake-tamp:main
 
 FROM python-ompl-base:ubuntu24.04
+# FROM moby21.jaist.ac.jp/s2530012/ompl-base-refined-260402:1
 # FROM nvidia/cuda:11.1.1-runtime-ubuntu18.04
 
 RUN DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -y update && apt-get -y install --no-install-recommends \
     curl \
+    # NOTE: build-essential (make) is required to build FastDownward.
+    build-essential \
     unzip \
     git vim \
     \
@@ -70,21 +73,7 @@ RUN apt -y install --no-install-recommends \
 #          (run.sh, collect-labels.sh 等の実験スクリプトで使用)
 
 # NOTE: They are required to install python-fcl
-RUN apt -y install --no-install-recommends liboctomap-dev libfcl-dev
-
-# # bazel installation : it is required to install drake from source, with custom build.
-# RUN apt-get -y install apt-transport-https gnupg
-# RUN curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
-# RUN mv bazel.gpg /etc/apt/trusted.gpg.d/
-# RUN echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
-# RUN apt update && apt -y install bazel
-
-
-# # pddlstream
-#RUN git clone --recurse-submodules https://github.com/caelan/pddlstream.git pddlstream
-#RUN cd pddlstream && ./FastDownward/build.py release64
-#RUN cd pddlstream/FastDownward/builds && ln -s release64 release32
-#ENV PYTHONPATH=${PYTHONPATH}:/python_venvs/tamp/pddlstream
+# RUN apt -y install --no-install-recommends liboctomap-dev
 
 # update terminal config
 RUN printf "2\n" | update-alternatives --config x-terminal-emulator

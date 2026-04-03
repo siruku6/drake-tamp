@@ -1,7 +1,9 @@
-drake==1.51.1
-numpy==2.4.3
+# drake must be 1.48.0 because of the conflict with ompl which requires gcc-11 and drake 1.51.0 requires gcc-13.
+drake==1.48.0
+# numpy 1.26.4 is required for torch==2.2.2 and call `numpy.lib.arraysetops` in learning/data_models.py
+numpy==1.26.4
 numpy-stl
-# pybullet. # drake との共存が困難
+# pybullet  # drake との共存が困難
 scipy==1.17.1
 pandas
 scikit-learn==1.8.0
