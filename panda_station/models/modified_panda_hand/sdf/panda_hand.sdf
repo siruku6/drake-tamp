@@ -15,7 +15,6 @@
                     <izz>0.00256378041832</izz>
                 </inertia>
             </inertial>
-            <self_collide>0</self_collide>
             <kinematic>0</kinematic>
             <visual name = "visual">
                 <pose>0 0 0 1.57079632679 0 0</pose>
@@ -32,7 +31,6 @@
             <collision name="collision">
                 <pose>0 0 0.033 0 0 0</pose>
                 <laser_retro>0</laser_retro>
-                <max_contacts>10</max_contacts>
                 <geometry>
                     <box>
                         <size>0.062 0.20 0.066</size>
@@ -99,7 +97,6 @@
                     <izz>6.95125211657e-06</izz>
                 </inertia>
             </inertial>
-            <self_collide>0</self_collide>
             <kinematic>0</kinematic>
             <visual name = "visual">
                 <pose>0 0 0 1.57079632679 0 0</pose>
@@ -116,7 +113,6 @@
             <collision name="tip_collision">
                 <pose>0 0.007 0.045 0 0 0</pose>
                 <laser_retro>0</laser_retro>
-                <max_contacts>10</max_contacts>
                 <geometry>
                     <box>
                         <size>0.017 0.014 0.017</size>
@@ -171,7 +167,6 @@
             <collision name="big_collision">
                 <pose>0 0.015 0.018 0 0 0</pose>
                 <laser_retro>0</laser_retro>
-                <max_contacts>10</max_contacts>
                 <geometry>
                     <box>
                         <size>0.017 0.014 0.036</size>
@@ -238,7 +233,6 @@
                     <izz>6.95125211657e-06</izz>
                 </inertia>
             </inertial>
-            <self_collide>0</self_collide>
             <kinematic>0</kinematic>
             <visual name = "visual">
                 <pose>0 0 0 1.57079632679 0 3.14159265359</pose>
@@ -255,7 +249,6 @@
             <collision name="tip_collision">
                 <pose>0 -0.007 0.045 0 0 0</pose>
                 <laser_retro>0</laser_retro>
-                <max_contacts>10</max_contacts>
                 <geometry>
                     <box>
                         <size>0.017 0.014 0.017</size>
@@ -310,7 +303,6 @@
             <collision name="big_collision">
                 <pose>0 -0.015 0.018 0 0 0</pose>
                 <laser_retro>0</laser_retro>
-                <max_contacts>10</max_contacts>
                 <geometry>
                     <box>
                         <size>0.017 0.014 0.036</size>
@@ -375,7 +367,6 @@
                     <upper>0.04</upper>
                     <effort>20</effort>
                     <stiffness>15000</stiffness>
-                    <dissipation>50</dissipation>
                 </limit>
                 <dynamics>
                     <spring_reference>0</spring_reference>
@@ -384,18 +375,6 @@
                     <friction>0</friction>
                 </dynamics>
             </axis>
-            <physics>
-                <ode>
-                    <limit>
-                        <cfm>0</cfm>
-                        <erp>0.2</erp>
-                    </limit>
-                <suspension>
-                    <cfm>0</cfm>
-                    <erp>0.2</erp>
-                </suspension>
-                </ode>
-            </physics>
         </joint>
         <joint name="right_finger_sliding_joint" type="prismatic">
             <parent>panda_hand</parent>
@@ -409,7 +388,6 @@
                     <upper>0.04</upper>
                     <effort>20</effort>
                     <stiffness>15000</stiffness>
-                    <dissipation>50</dissipation>
                 </limit>
                 <dynamics>
                     <spring_reference>0</spring_reference>
@@ -418,23 +396,11 @@
                     <friction>0</friction>
                 </dynamics>
             </axis>
-            <physics>
-                <ode>
-                    <limit>
-                        <cfm>0</cfm>
-                        <erp>0.2</erp>
-                    </limit>
-                <suspension>
-                    <cfm>0</cfm>
-                    <erp>0.2</erp>
-                </suspension>
-                </ode>
-            </physics>
         </joint>
+        <drake:collision_filter_group name="group_left_right">
+            <drake:member>panda_leftfinger</drake:member>
+            <drake:member>panda_rightfinger</drake:member>
+            <drake:ignored_collision_filter_group>group_left_right</drake:ignored_collision_filter_group>
+        </drake:collision_filter_group>
     </model>
-    <drake:collision_filter_group name="group_left_right">
-        <drake:member link="panda_leftfinger"/>
-        <drake:member link="panda_rightfinger"/>
-        <drake:ignored_collision_filter_group name="group_left_right"/>
-    </drake:collision_filter_group>
 </sdf>
