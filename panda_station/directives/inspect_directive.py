@@ -3,12 +3,13 @@
 import numpy as np
 import pydrake.all
 from pydrake.all import (
-    DiagramBuilder, 
+    DiagramBuilder,
     RigidTransform,
     RollPitchYaw,
     RotationMatrix,
     Role,
-    ConnectMeshcatVisualizer,
+    Meshcat,
+    MeshcatVisualizer,
 )
 from panda_station import *
 
@@ -29,16 +30,12 @@ if __name__ == "__main__":
     station.finalize()
     builder.AddSystem(station)
     scene_graph = station.get_scene_graph()
-    zmq_url = "tcp://127.0.0.1:6001"
-    v = ConnectMeshcatVisualizer(
+    meshcat = Meshcat()
+    MeshcatVisualizer.AddToBuilder(
         builder,
-        scene_graph,
-        output_port=station.GetOutputPort("query_object"),
-        delete_prefix_on_load=True,
-        zmq_url=zmq_url,
-        #role = Role.kProximity
+        station.GetOutputPort("query_object"),
+        meshcat,
     )
-    v.load()
     diagram = builder.Build()
     diagram_context = diagram.CreateDefaultContext()
     diagram.Publish(diagram_context)

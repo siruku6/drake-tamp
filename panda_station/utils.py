@@ -1,8 +1,50 @@
 """
-This module contains simple utility functions 
+This module contains simple utility functions
 """
 import numpy as np
-from pydrake.all import RollPitchYaw, RigidTransform
+from pydrake.all import RollPitchYaw, RigidTransform, Meshcat, MeshcatVisualizer
+
+
+class MeshcatWrapper:
+    """
+    Adapts Drake 1.x Meshcat API to the old ConnectMeshcatVisualizer interface.
+
+    Usage:
+        meshcat = MeshcatWrapper.make(builder, query_output_port)
+        meshcat.start_recording()
+        meshcat.stop_recording()
+        meshcat.publish_recording()
+        html = meshcat.vis.static_html()
+    """
+
+    def __init__(self, meshcat_obj, visualizer):
+        self._obj = meshcat_obj
+        self._vis = visualizer
+        self.vis = self  # supports meshcat.vis.static_html()
+
+    @staticmethod
+    def make(builder, query_output_port):
+        """Create a MeshcatWrapper and connect it to the diagram builder."""
+        meshcat_obj = Meshcat()
+        visualizer = MeshcatVisualizer.AddToBuilder(
+            builder, query_output_port, meshcat_obj
+        )
+        return MeshcatWrapper(meshcat_obj, visualizer)
+
+    def static_html(self):
+        return self._obj.StaticHtml()
+
+    def load(self):
+        pass  # no longer needed in Drake 1.x
+
+    def start_recording(self):
+        self._vis.StartRecording()
+
+    def stop_recording(self):
+        self._vis.StopRecording()
+
+    def publish_recording(self):
+        self._vis.PublishRecording()
 
 class Colors:
     """

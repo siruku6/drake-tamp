@@ -1,6 +1,6 @@
 import pydrake.all
 import argparse
-from panda_station import ProblemInfo, TrajectoryDirector
+from panda_station import ProblemInfo, TrajectoryDirector, MeshcatWrapper
 
 SIM_INIT_TIME = 0
 
@@ -19,15 +19,7 @@ def make_and_init_simulation(zmq_url, prob):
 
     meshcat = None
     if zmq_url is not None:
-        meshcat = pydrake.systems.meshcat_visualizer.ConnectMeshcatVisualizer(
-            builder,
-            scene_graph,
-            output_port=station.GetOutputPort("query_object"),
-            delete_prefix_on_load=True,
-            zmq_url=zmq_url,
-            # role = Role.kProximity
-        )
-        meshcat.load()
+        meshcat = MeshcatWrapper.make(builder, station.GetOutputPort("query_object"))
     else:
         print("No meshcat server url provided, running without gui")
 

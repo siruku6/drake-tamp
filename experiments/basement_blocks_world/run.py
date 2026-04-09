@@ -50,6 +50,7 @@ from panda_station import (
     update_surfaces,
     find_pregrasp,
     Q_NOMINAL,
+    MeshcatWrapper,
 )
 from tamp_statistics import make_plot
 from experiments.basement_blocks_world import basement_blocks_world_streams
@@ -419,15 +420,7 @@ def make_and_init_simulation(zmq_url, prob):
 
     meshcat = None
     if zmq_url is not None:
-        meshcat = pydrake.systems.meshcat_visualizer.ConnectMeshcatVisualizer(
-            builder,
-            scene_graph,
-            output_port=station.GetOutputPort("query_object"),
-            delete_prefix_on_load=True,
-            zmq_url=zmq_url,
-            # role = Role.kProximity
-        )
-        meshcat.load()
+        meshcat = MeshcatWrapper.make(builder, station.GetOutputPort("query_object"))
     else:
         lprint("No meshcat server url provided, running without gui")
 

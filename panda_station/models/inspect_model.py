@@ -2,7 +2,7 @@
 
 import argparse
 from pydrake.all import (
-    DiagramBuilder, AddMultibodyPlantSceneGraph, Parser, ConnectMeshcatVisualizer, Role
+    DiagramBuilder, AddMultibodyPlantSceneGraph, Parser, Meshcat, MeshcatVisualizer, Role
 )
     
 parser = argparse.ArgumentParser()
@@ -19,9 +19,9 @@ plant, scene_graph = AddMultibodyPlantSceneGraph(builder, time_step=1e-4)
 Parser(plant, scene_graph).AddModels(model_path)
 plant.Finalize()
 
-meshcat = ConnectMeshcatVisualizer(builder, scene_graph, zmq_url=zmq_url)#, role = Role.kProximity)
+meshcat = Meshcat()
+MeshcatVisualizer.AddToBuilder(builder, scene_graph, meshcat)
 diagram = builder.Build()
 
-meshcat.load()
 diagram_context = diagram.CreateDefaultContext()
 diagram.Publish(diagram_context)
