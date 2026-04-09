@@ -16,7 +16,7 @@ model_path = args.model_path
 
 builder = DiagramBuilder()
 plant, scene_graph = AddMultibodyPlantSceneGraph(builder, time_step=1e-4)
-Parser(plant, scene_graph).AddModelFromFile(model_path)
+Parser(plant, scene_graph).AddModels(model_path)
 plant.Finalize()
 
 meshcat = ConnectMeshcatVisualizer(builder, scene_graph, zmq_url=zmq_url)#, role = Role.kProximity)

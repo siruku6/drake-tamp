@@ -222,7 +222,7 @@ class PandaStation(pydrake.systems.framework.Diagram):
         if name is None:
             num = str(len(self.object_infos))
             name = "added_model_" + num
-        model = parser.AddModelFromFile(path, name)
+        model = parser.AddModels(path)[0]
         indices = self.plant.GetBodyIndices(model)
         assert (len(indices) == 1) or (
             main_body_name is not None
@@ -243,10 +243,11 @@ class PandaStation(pydrake.systems.framework.Diagram):
         main_body = self.plant.get_body(main_body_index)
         if welded:
             frame_name = "offset_frame_" + name
-            offset_frame = pydrake.multibody.tree.FixedOffsetFrame(
-                frame_name, P=P, X_PF=Xinit_PO
+            offset_frame = self.plant.AddFrame(
+                pydrake.multibody.tree.FixedOffsetFrame(
+                    frame_name, P=P, X_PF=Xinit_PO
+                )
             )
-            self.plant.AddFrame(offset_frame)
             self.plant.WeldFrames(
                 offset_frame, main_body.body_frame(), pydrake.math.RigidTransform()
             )
