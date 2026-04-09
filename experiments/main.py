@@ -157,6 +157,12 @@ def make_argument_parser():
         required=False,
         help="The maximum time before FastDownward times out (per call)"
     )
+
+    parser.add_argument(
+        '--simulate',
+        action="store_true",
+        help="Run the simulation after planning and save recording.html"
+    )
     return parser
 
 if __name__ == '__main__':
@@ -212,7 +218,7 @@ if __name__ == '__main__':
             eager_mode=args.eager_mode,
             should_save=args.should_save,
             url=args.url if args.url else None,
-            simulate=False,
+            simulate=args.simulate,
             oracle_kwargs=oracle_options,
             path=args.logpath,
             max_planner_time = args.max_planner_time,
