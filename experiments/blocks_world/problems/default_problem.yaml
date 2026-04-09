@@ -61,3 +61,14 @@ surfaces:
           - "base_link"
      purple_table: 
           - "base_link"
+
+goal:
+- and
+- - on-table
+  - blue_block
+  - - green_table
+    - base_link
+- - on-table
+  - green_block
+  - - green_table
+    - base_link
