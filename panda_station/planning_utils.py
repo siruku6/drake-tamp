@@ -151,7 +151,7 @@ class ProblemInfo:
                 P = plant.GetFrameByName("panda_hand", panda_info.hand)
                 X = RigidTransform()
                 X.set_translation([0, 0, 0.2])
-                welded = True
+                welded = True  # always weld to hand
             if X_PO is not None:
                 X = X_PO
             object_info = station.add_model_from_file(
@@ -402,6 +402,17 @@ def update_station(station, station_context, pose_fluents, set_to_inf=[]):
     """
     plant = station.get_multibody_plant()
     plant_context = station.GetSubsystemContext(plant, station_context)
+
+    def set_offset_frame_pose(offset_frame, plant_context, X_PF):
+        # Drake API changed: FixedOffsetFrame.SetPoseInBodyFrame was replaced
+        # by SetPoseInParentFrame in newer versions.
+        if hasattr(offset_frame, "SetPoseInParentFrame"):
+            # new
+            offset_frame.SetPoseInParentFrame(plant_context, X_PF)
+        else:
+            # old
+            offset_frame.SetPoseInBodyFrame(plant_context, X_PF)
+
     set_pose = []
     for _, name, X_PO in pose_fluents:
         if isinstance(X_PO, RigidTransformWrapper):
@@ -412,7 +423,7 @@ def update_station(station, station_context, pose_fluents, set_to_inf=[]):
         assert (
             offset_frame is not None
         ), "you are trying to set the pose of a free object"
-        offset_frame.SetPoseInBodyFrame(plant_context, X_PO)
+        set_offset_frame_pose(offset_frame, plant_context, X_PO)
 
 
     X_WO = RigidTransform(RotationMatrix(), [10, 0, 0])
@@ -424,7 +435,7 @@ def update_station(station, station_context, pose_fluents, set_to_inf=[]):
         if (set_to_inf is not None) and object_info.get_name() not in set_to_inf:
             continue
         offset_frame = object_info.get_frame()
-        offset_frame.SetPoseInBodyFrame(plant_context, X_WO)
+        set_offset_frame_pose(offset_frame, plant_context, X_WO)
         # spacing of 5 m should be far enough
         X_WO.set_translation(X_WO.translation() + np.array([5, 0, 0]))
 
