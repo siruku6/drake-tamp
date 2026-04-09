@@ -23,7 +23,7 @@ def find_resource(filename, parent_path = None):
 def add_package_paths(parser):
     """
     Adds all package paths to the parser, starting from this directory and
-    crawling downwards. Also adds the manipulation_station models packages.
+    crawling downwards.
 
     Args:
         parser: The pydrake.multibody.parsing.Parser to add the packages to
