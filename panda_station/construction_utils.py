@@ -29,12 +29,12 @@ def add_package_paths(parser):
         parser: The pydrake.multibody.parsing.Parser to add the packages to
     """
     parser.package_map().PopulateFromFolder(find_resource(""))
-    parser.package_map().Add(
-        "manipulation_station",
-        os.path.join(
-            pydrake.common.GetDrakePath(), "examples/manipulation_station/models"
-        ),
-    )
+    # parser.package_map().Add(
+    #     "manipulation_station",
+    #     os.path.join(
+    #         pydrake.common.GetDrakePath(), "examples/manipulation_station/models"
+    #     ),
+    # )
 
 
 def add_panda(
@@ -57,12 +57,14 @@ def add_panda(
         the pydrake.multibody.tree.ModelInstanceIndex of the panda model that was added to the plant
     """
 
-    urdf_file = pydrake.common.FindResourceOrThrow(
-        "drake/manipulation/models/franka_description/urdf/panda_arm.urdf"
-    )
+    # urdf_file = pydrake.common.FindResourceOrThrow(
+    #     "drake/manipulation/models/franka_description/urdf/panda_arm.urdf"
+    # )
 
     parser = pydrake.multibody.parsing.Parser(plant)
-    model_index = parser.AddModelFromFile(urdf_file, name)
+    # model_index = parser.AddModelFromFile(urdf_file, name)
+    urdf_name: str = "package://drake_models/franka_description/urdf/panda_arm.urdf"
+    model_index = parser.AddModelsFromUrl(urdf_name)[0]
     plant.WeldFrames(
         plant.world_frame(),
         plant.GetFrameByName("panda_link0", model_index),
@@ -105,21 +107,18 @@ def add_panda_hand(
     parser = pydrake.multibody.parsing.Parser(plant)
 
     if weld_fingers:
-        model_index = parser.AddModelFromFile(
+        model_index = parser.AddModels(
             find_resource("models/modified_panda_hand/sdf/welded_panda_hand.sdf"),
-            name
-        )
+        )[0]
         assert not blocked, "The hand can't be both welded and blocked"
     elif blocked:
-        model_index = parser.AddModelFromFile(
+        model_index = parser.AddModels(
             find_resource("models/modified_panda_hand/sdf/blocked_panda_hand.sdf"),
-            name
-        )
+        )[0]
     else:
-        model_index = parser.AddModelFromFile(
+        model_index = parser.AddModels(
             find_resource("models/modified_panda_hand/sdf/panda_hand.sdf"),
-            name
-        )
+        )[0]
 
     if panda_model_instance_index is not None:
         X_8G = pydrake.math.RigidTransform(

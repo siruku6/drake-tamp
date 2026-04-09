@@ -29,7 +29,7 @@ class TestConstructionUtils(unittest.TestCase):
         plant, _ = AddMultibodyPlantSceneGraph(builder, 0.0)
         parser = Parser(plant)
         add_package_paths(parser)
-        packages = ["manipulation_station", "modified_panda_hand", "tables"]
+        packages = ["modified_panda_hand", "tables"]
         for p in packages:
             self.assertTrue(parser.package_map().Contains(p))
 
