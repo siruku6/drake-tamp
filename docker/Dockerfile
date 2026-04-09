@@ -18,7 +18,22 @@ RUN apt-get -y update && apt-get -y install --no-install-recommends \
     libopenmpi-dev libglew-dev libglfw3 libglfw3-dev \
     \
     && rm -rf /var/lib/apt/lists/* \
-    && apt -y autoremove
+    && apt -y autoremove \
+    \
+    # HACK: FastDownward requires a specific version of gcc and g++. We will install gcc-11 and g++-11 and set them as default.
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 200 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 200 \
+    && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-11 200 \
+    && update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-11 200 \
+    && update-alternatives --set gcc /usr/bin/gcc-11 \
+    && update-alternatives --set g++ /usr/bin/g++-11 \
+    && update-alternatives --set cc /usr/bin/gcc-11 \
+    && update-alternatives --set c++ /usr/bin/g++-11
+
+ENV CC=/usr/bin/gcc-11
+ENV CXX=/usr/bin/g++-11
+ENV CMAKE_C_COMPILER=/usr/bin/gcc-11
+ENV CMAKE_CXX_COMPILER=/usr/bin/g++-11
 
 
 # for display through vnc
@@ -57,13 +72,14 @@ RUN uv venv tamp --system-site-packages --python 3.12
 WORKDIR /python_venvs/tamp
 
 
-# utilities 
+# utilities
 RUN apt -y install --no-install-recommends \
     gedit \
     trash-cli \
     ffmpeg \
     xdg-utils \
     tmux \
+    firefox \
     openssh-server \
     sudo \
     xfce4-terminal \
@@ -144,7 +160,7 @@ ENV PYTHONPATH=${PYTHONPATH}:/home/$user/drake-tamp/:/home/$user/drake-tamp/pddl
 RUN echo "source /python_venvs/tamp/bin/activate" >> ~/.bashrc
 RUN echo "export  USER=$user" >> ~/.bashrc
 RUN echo "export  PYTHONPATH=${PYTHONPATH}:/home/$user/drake-tamp/:/home/$user/drake-tamp/pddlstream/:/home/$user/experiments/ikea_induction/:/home/$user/drake-tamp/pddlstream/examples/pybullet/utils/" >> ~/.bashrc
-RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$user/.mujoco/mujoco200/bin" >> ~/.bashrc
+# RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$user/.mujoco/mujoco200/bin" >> ~/.bashrc
 
 ARG gitname
 ARG gitemail
