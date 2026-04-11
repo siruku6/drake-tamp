@@ -4,24 +4,14 @@ This document provides instructions for setting up the Docker environment for th
 
 ## 1. Overview 🗺️
 
-- The build process is divided into two stages: the base image and the main image.
-
-
-### 1-1.What is the Base Image?
-
-- The base image is built using the `docker-compose-base.yml` and `Dockerfile.base` file. This image only includes the necessary dependencies for installing [OMPL](https://ompl.kavrakilab.org/).
-
-
-### 1-2. Why build the Base Image? 🤔
-
-- The installation of OMPL takes a significant amount of time⏳, so this base image is created to perform the installation only once.
-- Even if issues arise during the subsequent image build, there is no need to reinstall OMPL because you can use the base image as a starting point for the subsequent build ✌️
-
+- Recently, `ompl` has been updated to version 2.0.0, which can be installed through `pip install ompl`.
+- Please also see the official documentation for more details: https://ompl.kavrakilab.org/installation.html
+    - After accessing the link, click on the "Python" button to view the installation instructions for the Python bindings of OMPL.
 
 
 ## 2. Building steps 🛠️
 
-### 2-1. Building the Base Image
+<!-- ### 2-1. Building the Base Image
 
 - Run the following command to build the base image:
 
@@ -35,15 +25,15 @@ This document provides instructions for setting up the Docker environment for th
     ```bash
     [137/530] Building CXX object src/ompl/CMakeFiles/ompl.dir/geometric/planne
     => => # rs/rlrt/src/RLRT.cpp.o
-    ```
+    ``` -->
 
 
-### 2-2. Building the Main Image
+### 2-1. Building the Main Image
 
-- After successfully building the base image, please follow the steps below.
+- Please follow the steps below.
 
 
-#### 2-2-1. Create a `.env` file
+#### 2-1-1. Create a `.env` file
 
 - Before building the main image, you need to create a `.env` file in the `docker` directory. You can create it by copying the example file:
 
@@ -53,7 +43,7 @@ This document provides instructions for setting up the Docker environment for th
     ```
 
 
-#### 2-2-2. Build the Main Image
+#### 2-1-2. Build the Main Image
 
 - You can build the main image using the following command:
 
@@ -62,20 +52,31 @@ This document provides instructions for setting up the Docker environment for th
     docker compose build
     ```
 
-- The main depends on the base image `python-ompl-base:ubuntu24.04`.
 
+#### To compile FastDownward
 
-#### To compile FastDownward run:
+- It may be better to fix the version of gc and g++ to 11 in advance.
+- Run the following commands at first:
+    ```bash
+    git rm -rf experiments/ikea_induction
+    rm -rf .git/modules/experiments/ikea_induction
+    git submodule update --init --recursive
 
-```bash
-git submodule update --init --recursive
+    cd docker
+    docker compose up -d
+    docker compose exec dtamp bash
+    ```
+- Then add the following line to `FastDownward/src/search/options/option_parser.h` before the line `#include <memory>` at line 9:
+    ```cpp
+    #include <limits>
+    ```
+- At last, run the following commands to compile FastDownward:
+    ```bash
+    cd pddlstream
+    ./FastDownward/build.py release64
 
-cd docker
-docker compose up -d
-docker compose exec dtamp bash
-cd pddlstream && ./FastDownward/build.py release64
-cd pddlstream/FastDownward/builds && ln -s release64 release32
-```
+    cd ./FastDownward/builds && ln -s release64 release32
+    ```
 
 
 ## 3. Remote Access via TigerVNC 🖥️
@@ -107,7 +108,8 @@ Host tamp_workspace
     User ubuntu
 ```
 
-> ⚠️ **Common mistakes to avoid**
+> [!WARNING]
+> **Common mistakes to avoid**
 > - Do **not** use `-q0 localhost 5901` in `ProxyCommand` — `-q0` is not a valid SSH flag.
 > - The `ProxyCommand` must forward to the **SSH port (2300)**, not the VNC port (5901).
 
@@ -140,4 +142,54 @@ Docker Container
   │  LocalForward 5901  →  TigerVNC server (:5901)
   ↓
 XFCE Desktop
+```
+
+## 4. Running Experiments 🧪
+
+### Running an experiment in the container
+
+```bash
+# @ drake-tamp/ directory
+python -O experiments/main.py \
+    --domain blocks_world \
+    --algorithm adaptive \
+    --mode normal \
+    --problem-file experiments/blocks_world/problems/default_problem.yaml \
+    --logpath logs/smoke_default \
+    --max-time 90 \
+    --max_planner_time 30
+```
+
+```bash
+# @ drake-tamp/ directory
+python -O experiments/main.py \
+  --domain blocks_world \
+  --mode save \
+  --algorithm adaptive \
+  --problem-file experiments/blocks_world/problems/default_problem.yaml \
+  --logpath ./logs/exp_output/ \
+  --url tcp://127.0.0.1:6000
+```
+
+### Create a recording of the experiment
+
+- This doesn't work:
+
+```bash
+# @ drake-tamp/ directory
+python -m experiments.blocks_world.run -u dummy -p ./logs/test/
+```
+
+- This makes a recording:
+
+```bash
+# @ drake-tamp/ directory
+python -m experiments.main \
+    --domain blocks_world \
+    --mode save \
+    --algorithm adaptive \
+    --problem-file experiments/blocks_world/problems/default_problem.yaml \
+    --logpath ./logs/test/ \
+    --simulate \
+    --url tcp://127.0.0.1:6000
 ```
