@@ -37,11 +37,12 @@ def state_to_q(state):
     return np.array(q)
 
 
-def q_to_state(space, q):
+def q_to_state(si: ob.SpaceInformation, q):
     """
     Turns a numpy array in to a RealVectorStateSpae::StateType
     """
-    state = ob.State(space)
+    # state = ob.State(si.getStateSpace())
+    state = si.allocState()
     for i in range(len(q)):
         state[i] = q[i]
     return state
@@ -124,12 +125,12 @@ def find_traj(
     si.setStateValidityCheckingResolution(0.005) # half of default
     si.setup()
 
-    start = q_to_state(space, q_start)
+    start = q_to_state(si, q_start)
     if not checker.isValid(start):
         if verbose:
             print(f"{Colors.RED}INVALID OMPL START STATE {Colors.RESET}")
         return None
-    goal = q_to_state(space, q_goal)
+    goal = q_to_state(si, q_goal)
     if not checker.isValid(goal):
         if verbose:
             print(f"{Colors.RED}INVALID OMPL GOAL STATE{Colors.RESET}")
@@ -143,7 +144,16 @@ def find_traj(
     planner.setBorderFraction(0.1)
     planner.setup()
 
-    solved = planner.solve(ob.CostConvergenceTerminationCondition(pdef))
+    if hasattr(ob, "CostConvergenceTerminationCondition"):
+        solved = planner.solve(ob.CostConvergenceTerminationCondition(pdef))
+    elif hasattr(ob, "timedPlannerTerminationCondition"):
+        solved = planner.solve(ob.timedPlannerTerminationCondition(1.0))
+    else:
+        raise RuntimeError(
+            "OMPL termination condition API is unavailable: "
+            "neither CostConvergenceTerminationCondition nor "
+            "timedPlannerTerminationCondition exists in ompl.base"
+        )
     if not solved:
         if verbose:
             print(f"{Colors.RED}FAILED TO FIND OMPL SOLUTION{Colors.RESET}")
