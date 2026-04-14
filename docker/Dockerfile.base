@@ -66,8 +66,8 @@ RUN apt -y update && apt -y install --no-install-recommends \
     python3-pyqt5.qtopengl \
     # pypy3 \
     && rm -rf /var/lib/apt/lists/* \
-    && apt -y autoremove \
-    && export CXX=clang++
+    && apt -y autoremove
+    # && export CXX=clang++
 
 
 # RUN && ${SUDO} pip3 install ${PIP_ARGS} -vU https://github.com/CastXML/pygccxml/archive/develop.zip pyplusplus
