@@ -287,7 +287,7 @@ def box_grasp_q(
             unit_v = np.zeros(3)
             unit_v[axis] += 1
             ik = InverseKinematics(plant, plant_context)
-            ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+            ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
             dim = box_dim_from_axis(axis, shape_info.shape)
             margin = GRASP_WIDTH - dim
             if margin < GRASP_MARGIN + COL_MARGIN:
@@ -387,7 +387,7 @@ def cylinder_grasp_q(
         margin = GRASP_WIDTH - cylinder.radius() * 2
         p_tol = min(cylinder.radius() / np.sqrt(2), margin / (2 * np.sqrt(2)))
         ik = InverseKinematics(plant, plant_context)
-        ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+        ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
         ik.AddPositionConstraint(
             H,
             [0, 0, HAND_HEIGHT],
@@ -416,7 +416,7 @@ def cylinder_grasp_q(
             lower_xy_bound = min(-radius + FINGER_WIDTH / 2, -GRASP_MARGIN)
             upper_xy_bound = max(radius - FINGER_WIDTH / 2, GRASP_MARGIN)
             ik = InverseKinematics(plant, plant_context)
-            ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+            ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
             ik.AddPositionConstraint(
                 H,
                 [0, sign * GRASP_WIDTH / 2, HAND_HEIGHT],
@@ -506,7 +506,7 @@ def sphere_grasp_q(
     )
 
     ik = InverseKinematics(plant, plant_context)
-    ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+    ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
     ik.AddPositionConstraint(
         H,
         [0, 0, HAND_HEIGHT],
@@ -640,7 +640,7 @@ def X_WH_to_q(
         X_WH.translation() + GRASP_MARGIN * np.ones(3),
     )
     ik.AddOrientationConstraint(H, RotationMatrix(), W, X_WH.rotation(), THETA_TOL)
-    ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+    ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
     q = ik.q()
     prog = ik.prog()
     prog.AddQuadraticErrorCost(np.identity(len(q)), q_nominal, q)
@@ -873,7 +873,7 @@ def sphere_place_q(
             surface.bb_min[i] = surface.bb_min[i] + sign * sphere.radius()
 
     ik = InverseKinematics(plant, plant_context)
-    ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+    ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
     ik.AddPositionConstraint(H, np.zeros(3), P, surface.bb_min, surface.bb_max)
 
     prog = ik.prog()
@@ -932,7 +932,7 @@ def cylinder_place_q(
     p_WB = p_SB + surface.shape_info.offset_frame.CalcPoseInWorld(plant_context).translation()
     for sign in [-1, 1]:
         ik = InverseKinematics(plant, plant_context)
-        ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+        ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
         corners = extract_cylinder_corners(cylinder, sign)
         for corner in corners:
             ik.AddPositionConstraint(H, corner, P, surface.bb_min, surface.bb_max)
@@ -970,7 +970,7 @@ def cylinder_place_q(
             surface.bb_min[i] = surface.bb_min[i] + sign * cylinder.radius()
 
     ik = InverseKinematics(plant, plant_context)
-    ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+    ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
     ik.AddPositionConstraint(
         H, np.array([0, 0, cylinder.length() / 2]), P, surface.bb_min, surface.bb_max
     )
@@ -1037,7 +1037,7 @@ def box_place_q(
     for sign in [-1, 1]:
         for axis in range(0, 3):
             ik = InverseKinematics(plant, plant_context)
-            ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+            ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
             # corners of face must lie in bounding box
             corners = extract_box_corners(box, axis, sign)
             for corner in corners:

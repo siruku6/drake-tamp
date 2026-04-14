@@ -58,7 +58,7 @@ def X_WH_to_q(
         X_WH.translation() + p_tol * np.ones(3),
     )
     ik.AddOrientationConstraint(H, RotationMatrix(), W, X_WH.rotation(), theta_tol)
-    ik.AddMinimumDistanceConstraint(col_margin, 0.1)
+    ik.AddMinimumDistanceLowerBoundConstraint(col_margin, 0.1)
     q = ik.q()
     prog = ik.prog()
     #prog.AddQuadraticErrorCost(np.identity(len(q)), q_nominal, q)

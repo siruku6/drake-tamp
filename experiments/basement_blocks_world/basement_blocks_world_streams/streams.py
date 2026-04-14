@@ -156,7 +156,7 @@ def find_ik_with_handpose(
     W = plant.world_frame()
     ik = InverseKinematics(plant, plant_context)
     if not relax:
-        ik.AddMinimumDistanceConstraint(COL_MARGIN, CONSIDER_MARGIN)
+        ik.AddMinimumDistanceLowerBoundConstraint(COL_MARGIN, CONSIDER_MARGIN)
     lower = X_HI.translation() - np.array([0.001, 0.001, 0.001])
     upper = X_HI.translation() + np.array([0.001, 0.001, 0.001])
     ik.AddPositionConstraint(
