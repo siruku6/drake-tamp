@@ -48,6 +48,54 @@ def q_to_state(si: ob.SpaceInformation, q):
     return state
 
 
+def _solve_with_cost_convergence_fallback(
+    planner,
+    pdef,
+    step_time=0.1,
+    max_total_time=5.0,
+    solutions_window=10,
+    epsilon=0.1,
+):
+    """
+    Repeat short OMPL solve calls and stop when path-length cost converges.
+
+    This emulates the spirit of CostConvergenceTerminationCondition for
+    environments where it is not available in Python bindings.
+    """
+    solved = False
+    elapsed = 0.0
+    recent_costs = []
+
+    while elapsed < max_total_time:
+        solved = bool(planner.solve(ob.timedPlannerTerminationCondition(step_time))) or solved
+        elapsed += step_time
+        if not solved:
+            continue
+
+        try:
+            path_now = pdef.getSolutionPath()
+            cost_now = path_now.length()
+        except Exception:
+            break
+
+        recent_costs.append(cost_now)
+        if len(recent_costs) <= solutions_window:
+            continue
+
+        recent_costs = recent_costs[-solutions_window:]
+        prev_avg = float(np.mean(recent_costs[:-1]))
+        curr_avg = float(np.mean(recent_costs))
+
+        if prev_avg > 0:
+            rel_change = abs(curr_avg - prev_avg) / prev_avg
+        else:
+            rel_change = abs(curr_avg - prev_avg)
+
+        if rel_change <= epsilon:
+            break
+
+    return solved
+
 
 def find_traj(
     station,
@@ -147,7 +195,7 @@ def find_traj(
     if hasattr(ob, "CostConvergenceTerminationCondition"):
         solved = planner.solve(ob.CostConvergenceTerminationCondition(pdef))
     elif hasattr(ob, "timedPlannerTerminationCondition"):
-        solved = planner.solve(ob.timedPlannerTerminationCondition(1.0))
+        solved = _solve_with_cost_convergence_fallback(planner, pdef)
     else:
         raise RuntimeError(
             "OMPL termination condition API is unavailable: "
